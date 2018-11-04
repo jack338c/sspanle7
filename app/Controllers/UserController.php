@@ -499,7 +499,7 @@ class UserController extends BaseController
                 }
 
 
-                if ($node->sort==0||$node->sort==7||$node->sort==8||$node->sort==10) {
+                if ($node->sort==0||$node->sort==7||$node->sort==8||$node->sort==10||$node->sort==11) {
                     $node_tempalive=$node->getOnlineUserCount();
                     $node_prealive[$node->id]=$node_tempalive;
                     if ($node->isNodeOnline() !== null) {
@@ -546,7 +546,13 @@ class UserController extends BaseController
         $node_prefix=(object)$node_prefix;
         $node_order=(object)$node_order;
         $tools = new Tools();
-        return $this->view()->assign('relay_rules', $relay_rules)->assign('tools', $tools)->assign('node_method', $node_method)->assign('node_muport', $node_muport)->assign('node_bandwidth', $node_bandwidth)->assign('node_heartbeat', $node_heartbeat)->assign('node_prefix', $node_prefix)->assign('node_prealive', $node_prealive)->assign('node_order', $node_order)->assign('user', $user)->assign('node_alive', $node_alive)->display('user/node.tpl');
+        return $this->view()->assign('relay_rules', $relay_rules)
+        ->assign('tools', $tools)->assign('node_method', $node_method)
+        ->assign('node_muport', $node_muport)->assign('node_bandwidth', $node_bandwidth)
+        ->assign('node_heartbeat', $node_heartbeat)->assign('node_prefix', $node_prefix)
+        ->assign('node_prealive', $node_prealive)->assign('node_order', $node_order)
+        ->assign('user', $user)->assign('node_alive', $node_alive)
+        ->registerClass("URL", "App\Utils\URL")->display('user/node.tpl');
     }
 
 

@@ -69,6 +69,70 @@ class URL
         }
     }
 
+    public static function parse_args($origin) {
+        // parse xxx=xxx|xxx=xxx to array(xxx => xxx, xxx => xxx)
+        $args_explode = explode('|', $origin);
+         $return_array = [];
+        foreach ($args_explode as $arg) {
+            $split_point = strpos($arg, '=');
+             $return_array[substr($arg, 0, $split_point)] = substr($arg, $split_point + 1);
+        }
+         return $return_array;
+    }
+
+
+    public static function getV2Url($user, $node){
+        $node_explode = explode(';', $node->server);
+        $item = [
+            'v'=>'2', 
+            'host'=>'', 
+            'path'=>'', 
+            'tls'=>''
+        ];
+        $item['ps'] = $node->name;
+        $item['add'] = $node_explode[0];
+        $item['port'] = $node_explode[1];
+        $item['id'] = $user->getUuid();
+        $item['aid'] = $node_explode[2];
+        if (count($node_explode) >= 4) {
+            $item['net'] = $node_explode[3];
+            if ($item['net'] == 'ws') {
+                $item['path'] = '/';
+            } else if ($item['net'] == 'tls') {
+                $item['tls'] = 'tls';
+            }
+        } else {
+            $item['net'] = "tcp";
+        } 
+        if (count($node_explode) >= 5) {
+            if ($item['net'] == 'kcp' || $node_explode[4] == 'http') {
+                $item['type'] = $node_explode[4];
+            } else {
+                $item['type'] = "none";
+            }
+        } else {
+            $item['type'] = "none";
+        } 
+        if (count($node_explode) >= 6) {
+            $item = array_merge($item, URL::parse_args($node_explode[5]));
+        }
+        return "vmess://".base64_encode((json_encode($item, JSON_UNESCAPED_UNICODE)));
+    }
+
+
+    public static function getAllVMessUrl($user) {
+        $nodes = Node::where('sort', 11)->where(
+            function ($query) use ($user){
+                $query->where("node_group", "=", $user->node_group)
+                    ->orWhere("node_group", "=", 0);
+            }
+        )->where("type", "1")->where("node_class", "<=", $user->class)->orderBy("name")->get();
+        $result = "";
+        foreach ($nodes as $node) {
+            $result .= (URL::getV2Url($user, $node) . "\n");
+        }
+        return $result;
+    }
 
     public static function SSCanConnect($user, $mu_port = 0) {
         if($mu_port != 0) {
