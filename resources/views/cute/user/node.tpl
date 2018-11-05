@@ -126,7 +126,7 @@
 																		{$relay_rule = $tools->pick_out_relay_rule($node->id, $user->port, $relay_rules)}
 																	{/if}
 
-																	{if $node->mu_only != 1}
+																	{if $node->mu_only != 1 && $node->sort != 11}
 																	<div class="col-lg-4 col-sm-6">
 																	<div class="card">
 																		<div class="card-main">
@@ -179,6 +179,40 @@
 																	</div>
 																	</div>
 																	{/if}
+																	{if $node->sort == 11} 
+																		{assign var=server_explode value=";"|explode:$node->server}
+																		<div class="card">
+																			<div class="card-main">
+																				<div class="card-inner">
+																					<p class="card-heading" >
+																						<a href="javascript:void(0);" >{$node->name}</a>
+																					</p>
+																				</div>
+																				<p>地址：<span class="label label-brand-accent">
+                                                                                    {$server_explode[0]}
+																				</span></p>
+ 																				<p>端口：<span class="label label-brand-red">
+																					{$server_explode[1]}
+																				</span></p>
+ 																				<p>协议参数：<span class="label label-green">
+																					{$server_explode[0]}
+																				</span></p>
+ 																				<p>用户 UUID：<span class="label label-brand">
+																					{$user->getUuid()}
+																				</span></p>
+ 																				<p>流量比例：<span class="label label-red">
+																					{$node->traffic_rate}
+																				</span></p>
+ 																				<p>AlterId：<span class="label label-green">
+																					{$server_explode[2]}
+																				</span></p>
+																				<p>VMess链接：
+																					<a href="{URL::getV2Url($user, $node)}">长按复制</a>
+																				</p>
+ 																				<p>{$node->info}</p>
+																			</div>
+																		</div>
+																	{/if}
 
 																{/foreach}
 
@@ -213,6 +247,7 @@
 
 
 <script>
+
 function urlChange(id,is_mu,rule_id) {
     var site = './node/'+id+'?ismu='+is_mu+'&relay_rule='+rule_id;
 	if(id == 'guide')
